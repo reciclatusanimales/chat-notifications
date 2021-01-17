@@ -1,28 +1,17 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { Op } = require("sequelize");
+const { Op, ValidationError } = require("sequelize");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 
-const { JWT_SECRET } = require("../config/env.json");
-const { User } = require("../models");
+const { JWT_SECRET } = require("../../config/env.json");
+const { User } = require("../../models");
+const { capitalize } = require("../../utils/utils");
 
 module.exports = {
 	Query: {
-		getUsers: async (_, __, context) => {
+		getUsers: async (_, __, { user }) => {
 			try {
-				let user;
-				if (context.req && context.req.headers.authorization) {
-					const token = context.req.headers.authorization.split(
-						"Bearer "
-					)[1];
-
-					jwt.verify(token, JWT_SECRET, (error, decodedToken) => {
-						if (error) {
-							throw new AuthenticationError("Unauthenticated.");
-						}
-						user = decodedToken;
-					});
-				}
+				if (!user) throw new AuthenticationError("Unauthenticated");
 
 				const users = await User.findAll({
 					where: { username: { [Op.ne]: user.username } },
@@ -30,7 +19,6 @@ module.exports = {
 
 				return users;
 			} catch (error) {
-				console.error(error);
 				throw error;
 			}
 		},
@@ -39,18 +27,14 @@ module.exports = {
 			let errors = {};
 
 			try {
-				if (username.trim() === "") {
+				if (username.trim() === "")
 					errors.username = "Username must not be empty.";
-				}
-				if (password === "") {
+
+				if (password === "")
 					errors.password = "Password must not be empty.";
-				}
 
-				console.log(errors);
-
-				if (Object.keys(errors).length > 0) {
+				if (Object.keys(errors).length > 0)
 					throw new UserInputError("Bad input", { errors });
-				}
 
 				const user = await User.findOne({
 					where: { username },
@@ -68,9 +52,7 @@ module.exports = {
 
 				if (!correctPassword) {
 					errors.general = "Wrong credentials.";
-					throw new AuthenticationError("Incorrect password", {
-						errors,
-					});
+					throw new UserInputError("Incorrect password", { errors });
 				}
 
 				const token = jwt.sign(
@@ -87,7 +69,6 @@ module.exports = {
 					token,
 				};
 			} catch (error) {
-				console.error(error);
 				throw error;
 			}
 		},
@@ -99,22 +80,21 @@ module.exports = {
 
 			try {
 				// Validate input data
-				if (username.trim() === "") {
+				if (username.trim() === "")
 					errors.username = "Username must not be empty.";
-				}
-				if (email.trim() === "") {
+
+				if (email.trim() === "")
 					errors.email = "Email must not be empty.";
-				}
-				if (password.trim() === "") {
+
+				if (password.trim() === "")
 					errors.password = "Password must not be empty.";
-				}
-				if (confirmPassword.trim() === "") {
+
+				if (confirmPassword.trim() === "")
 					errors.confirmPassword =
 						"Confirmation password must not be empty.";
-				}
-				if (password !== confirmPassword) {
+
+				if (password !== confirmPassword)
 					errors.confirmPassword = "Password must match.";
-				}
 
 				// Check if username and email exists
 				// const userByUsername = await User.findOne({
@@ -131,10 +111,7 @@ module.exports = {
 				// 	errors.email = "Email is taken.";
 				// }
 
-				if (Object.keys(errors).length > 0) {
-					console.error(errors);
-					throw errors;
-				}
+				if (Object.keys(errors).length > 0) throw errors;
 
 				// Hash password
 				password = await bcrypt.hash(password, 6);
@@ -150,11 +127,14 @@ module.exports = {
 				return user;
 			} catch (error) {
 				if (error.name === "SequelizeUniqueConstraintError") {
-					error.errors.username = "Username or Email already taken.";
+					let path = error.original.constraint;
+					path = path.split(error.original.table + "_");
+					path = path[1].split("_key")[0];
+					errors[path] = `${capitalize(path)} is already taken`;
 				} else if (error.name === "SequelizeValidationError") {
 					error.errors.forEach((e) => (errors[e.path] = e.message));
 				}
-				throw new UserInputError("Bad input", { errors: error });
+				throw new UserInputError("Bad input", { errors });
 			}
 		},
 	},
