@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const { Op, ValidationError } = require("sequelize");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 
-const { JWT_SECRET } = require("../../config/env.json");
 const { User, Message } = require("../../models");
 const { capitalize } = require("../../utils/utils");
 
@@ -80,7 +79,7 @@ module.exports = {
 					{
 						username,
 					},
-					JWT_SECRET,
+					process.env.JWT_SECRET,
 					{ expiresIn: 60 * 60 }
 				);
 
