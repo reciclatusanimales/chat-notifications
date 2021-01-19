@@ -11,7 +11,7 @@ module.exports = {
 		// https://unsplash.com/photos/b1Hg7QI-zcc
 		// https://unsplash.com/photos/RiDxDgHg7pw
 
-		await queryInterface.bulkCreate("users", [
+		await queryInterface.bulkInsert("users", [
 			{
 				username: "elliot",
 				email: "elliot@email.com",

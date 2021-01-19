@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		return queryInterface.bulkCreate("messages", [
+		return queryInterface.bulkInsert("messages", [
 			{
 				uuid: "7648485a-6657-48d7-87d6-6a98931d3598",
 				content: "Are u ok?",
