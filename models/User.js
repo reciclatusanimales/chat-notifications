@@ -34,6 +34,14 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			imageUrn: DataTypes.STRING,
+			imageUrl: {
+				type: DataTypes.VIRTUAL,
+				get() {
+					return this.imageUrn
+					? `${process.env.APP_URL}/images/profiles/${this.imageUrn}`
+					: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
+				},
+			},
 		},
 		{
 			sequelize,

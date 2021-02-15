@@ -15,7 +15,7 @@ module.exports = {
 		message: async (parent) => await Message.findByPk(parent.messageId),
 		user: async (parent) =>
 			await User.findByPk(parent.userId, {
-				attributes: ["username", "imageUrn", "createdAt"],
+				attributes: ["username", "imageUrl", "createdAt"],
 			}),
 	},
 	Query: {
