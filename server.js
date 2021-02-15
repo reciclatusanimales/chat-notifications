@@ -1,4 +1,7 @@
-const { ApolloServer } = require("apollo-server");
+const http = require('http');
+const express = require('express');
+const PORT = 4000
+const { ApolloServer } = require('apollo-server-express');
 
 require("dotenv").config();
 
@@ -13,20 +16,25 @@ const server = new ApolloServer({
 	resolvers,
 	context: contextMiddleware,
 	subscriptions: {
-		path: "/",
+		path: "/graphql",
 	},
 });
+const app = express();
 
-server.listen().then(({ url, subscriptionsUrl }) => {
-	console.log(`🚀 Server ready at ${url}`);
-	console.log(`🚀 Subscriptions ready at ${subscriptionsUrl}`);
+server.applyMiddleware({app})
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
+httpServer.listen(PORT, () =>{
+	console.log(`🚀 Server ready at http://localhost:${PORT}`);
+	console.log(`🚀 Subscriptions ready at http://localhost:${PORT}`);
 
 	sequelize
-		.authenticate()
-		.then(() => {
-			console.log("Database connected.");
-		})
-		.catch((error) => {
-			console.error(error);
-		});
-});
+	.authenticate()
+	.then(() => {
+		console.log("Database connected.");
+	})
+	.catch((error) => {
+		console.error(error);
+	});
+})

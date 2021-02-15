@@ -26,7 +26,7 @@ module.exports = {
 						from: { [Op.in]: usernames },
 						to: { [Op.in]: usernames },
 					},
-					order: [["createdAt", "DESC"]],
+					order: [["createdAt", "ASC"]],
 					include: [{ model: Reaction, as: "reactions" }],
 				});
 
@@ -118,7 +118,8 @@ module.exports = {
 	Subscription: {
 		newMessage: {
 			subscribe: withFilter(
-				(_, __, { user, pubsub }) => {
+				(_, __, { user, pubsub }) => {					
+					console.log("USER",user)
 					if (!user)
 						throw new AuthenticationError("Unauthenticated.");
 					return pubsub.asyncIterator("NEW_MESSAGE");
