@@ -7,8 +7,11 @@ module.exports = (sequelize, DataTypes) => {
 		 * This method is not a part of Sequelize lifecycle.
 		 * The `models/index` file will call this method automatically.
 		 */
-		static associate(models) {
-			// define association here
+		static associate({ Notification }) {
+			this.hasMany(Notification, {
+				foreignKey: "username",
+				as: "notifications",
+			});
 		}
 	}
 	User.init(
@@ -38,8 +41,8 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.VIRTUAL,
 				get() {
 					return this.imageUrn
-					? `${process.env.APP_URL}/images/profiles/${this.imageUrn}`
-					: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
+						? `${process.env.APP_URL}/images/profiles/${this.imageUrn}`
+						: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 				},
 			},
 		},

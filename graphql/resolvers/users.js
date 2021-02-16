@@ -9,12 +9,17 @@ const { capitalize } = require("../../utils/utils");
 module.exports = {
 	Query: {
 		getUsers: async (_, __, { user }) => {
-			console.log('GET USERS')
+			console.log("GET USERS");
 			try {
 				if (!user) throw new AuthenticationError("Unauthenticated");
 
 				let users = await User.findAll({
-					attributes: ["username", "imageUrn", "imageUrl", "createdAt"],
+					attributes: [
+						"username",
+						"imageUrn",
+						"imageUrl",
+						"createdAt",
+					],
 					where: { username: { [Op.ne]: user.username } },
 				});
 

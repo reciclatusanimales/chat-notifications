@@ -68,6 +68,26 @@ module.exports = {
 				throw error;
 			}
 		},
+		createNotification: async (parent, { username }, { user, pubsub }) => {
+			try {
+				console.log(user);
+				console.log(username);
+
+				const message = await Message.create({
+					from: "tuto",
+					to: "javieramena",
+					content: "TRIGGERs",
+				});
+
+				pubsub.publish("NEW_NOTIFICATION", {
+					newNotification: message,
+				});
+
+				return message;
+			} catch (error) {
+				throw error;
+			}
+		},
 		reactToMessage: async (_, { uuid, content }, { user, pubsub }) => {
 			const reactions = ["❤️", "😆", "😯", "😢", "😡", "👍", "👎"];
 
@@ -116,10 +136,28 @@ module.exports = {
 		},
 	},
 	Subscription: {
+		newNotification: {
+			subscribe: withFilter(
+				(_, __, { user, pubsub }) => {
+					console.log("CHECK_USER", user);
+					if (!user)
+						throw new AuthenticationError("Unauthenticated.");
+					return pubsub.asyncIterator("NEW_NOTIFICATION");
+				},
+				({ newNotification }, __, { user }) => {
+					// Check if the username is the subscriptor
+					console.log("CHECK_USER", user);
+					return (
+						newNotification.from === user.username ||
+						newNotification.to === user.username
+					);
+				}
+			),
+		},
 		newMessage: {
 			subscribe: withFilter(
-				(_, __, { user, pubsub }) => {					
-					console.log("USER",user)
+				(_, __, { user, pubsub }) => {
+					console.log("USER", user);
 					if (!user)
 						throw new AuthenticationError("Unauthenticated.");
 					return pubsub.asyncIterator("NEW_MESSAGE");

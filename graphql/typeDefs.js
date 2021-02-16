@@ -18,6 +18,39 @@ module.exports = gql`
 		createdAt: String!
 		reactions: [Reaction]
 	}
+	type Sub {
+		name: String!
+		title: String!
+		description: String
+		username: String!
+		createdAt: String!
+	}
+	type Post {
+		identifier: String!
+		slug: String!
+		title: String!
+		body: String
+		subName: String!
+		username: String!
+		createdAt: String!
+	}
+	type Comment {
+		identifier: String!
+		body: String!
+		username: String!
+		createdAt: String!
+	}
+	type Notification {
+		identifier: String!
+		type: String!
+		read: String!
+		user: User!
+		sender: User
+		sub: Sub
+		post: Post
+		comment: Comment
+		createdAt: String!
+	}
 	type Reaction {
 		uuid: String!
 		content: String!
@@ -29,6 +62,7 @@ module.exports = gql`
 		getUsers: [User]!
 		login(username: String!, password: String!): User!
 		getMessages(from: String!): [Message]!
+		getNotifications: [Notification]!
 	}
 	type Mutation {
 		register(
@@ -39,9 +73,11 @@ module.exports = gql`
 		): User!
 		sendMessage(to: String!, content: String!): Message!
 		reactToMessage(uuid: String!, content: String!): Reaction!
+		createNotification(username: String!): Message!
 	}
 	type Subscription {
 		newMessage: Message!
 		newReaction: Reaction!
+		newNotification: Message!
 	}
 `;
