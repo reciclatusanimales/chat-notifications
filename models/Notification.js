@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			read: {
 				type: DataTypes.STRING,
+				allowNull: true,
 				defaultValue: false,
 			},
 			username: {
@@ -45,15 +46,15 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			subName: {
 				type: DataTypes.STRING,
-				allowNull: false,
+				allowNull: true,
 			},
 			postId: {
 				type: DataTypes.INTEGER,
-				allowNull: false,
+				allowNull: true,
 			},
 			commentId: {
 				type: DataTypes.INTEGER,
-				allowNull: false,
+				allowNull: true,
 			},
 		},
 		{

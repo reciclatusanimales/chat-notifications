@@ -21,6 +21,8 @@ module.exports = gql`
 	type Sub {
 		name: String!
 		title: String!
+		imageUrn: String
+		imageUrl: String
 		description: String
 		username: String!
 		createdAt: String!
@@ -73,11 +75,15 @@ module.exports = gql`
 		): User!
 		sendMessage(to: String!, content: String!): Message!
 		reactToMessage(uuid: String!, content: String!): Reaction!
-		createNotification(username: String!): Message!
+		createNotification(
+			username: String!
+			sendername: String!
+			type: String!
+		): Notification!
 	}
 	type Subscription {
 		newMessage: Message!
 		newReaction: Reaction!
-		newNotification: Message!
+		newNotification: Notification!
 	}
 `;

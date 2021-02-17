@@ -7,6 +7,19 @@ const {
 const { Op } = require("sequelize");
 const { Message, User, Reaction, Notification } = require("../../models");
 
+function makeId(length) {
+	let result = "";
+	const characters =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	const charactersLength = characters.length;
+	for (let i = 0; i < length; i++) {
+		result += characters.charAt(
+			Math.floor(Math.random() * charactersLength)
+		);
+	}
+	return result;
+}
+
 module.exports = {
 	Query: {
 		getNotifications: async (parent, __, { user }) => {
@@ -28,22 +41,26 @@ module.exports = {
 		},
 	},
 	Mutation: {
-		createNotification: async (parent, { username }, { user, pubsub }) => {
+		createNotification: async (
+			parent,
+			{ username, sendername, type },
+			{ user, pubsub }
+		) => {
 			try {
-				console.log(user);
-				console.log(username);
+				if (type === "follow") {
+					const notification = await Notification.create({
+						identifier: makeId(8),
+						type,
+						sendername,
+						username,
+					});
 
-				const message = await Message.create({
-					from: "tuto",
-					to: "javieramena",
-					content: "TRIGGERs",
-				});
+					pubsub.publish("NEW_NOTIFICATION", {
+						newNotification: notification,
+					});
 
-				pubsub.publish("NEW_NOTIFICATION", {
-					newNotification: message,
-				});
-
-				return message;
+					return notification;
+				}
 			} catch (error) {
 				throw error;
 			}
