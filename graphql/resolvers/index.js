@@ -1,6 +1,7 @@
 const userResolvers = require("./users");
 const messageResolvers = require("./messages");
 const notificationResolvers = require("./notifications");
+const threadResolvers = require("./threads");
 
 const {
 	Message,
@@ -9,6 +10,7 @@ const {
 	Sub,
 	Post,
 	Comment,
+	Thread,
 } = require("../../models");
 
 module.exports = {
@@ -62,6 +64,10 @@ module.exports = {
 	User: {
 		createdAt: (parent) => parent.createdAt.toISOString(),
 	},
+	Thread: {
+		createdAt: (parent) => parent.createdAt.toISOString(),
+		updatedAt: (parent) => parent.createdAt.toISOString(),
+	},
 	Reaction: {
 		createdAt: (parent) => parent.createdAt.toISOString(),
 		message: async (parent) => await Message.findByPk(parent.messageId),
@@ -74,6 +80,7 @@ module.exports = {
 		...userResolvers.Query,
 		...messageResolvers.Query,
 		...notificationResolvers.Query,
+		...threadResolvers.Query,
 	},
 	Mutation: {
 		...userResolvers.Mutation,

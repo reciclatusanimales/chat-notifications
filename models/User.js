@@ -2,12 +2,12 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
-		static associate({ Notification }) {
+		static associate({ Notification, Thread }) {
+			this.belongsToMany(Thread, {
+				through: "ThreadUser",
+				as: "threads",
+				foreignKey: "userId",
+			});
 			this.hasMany(Notification, {
 				foreignKey: "username",
 				as: "notifications",

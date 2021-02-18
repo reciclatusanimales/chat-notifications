@@ -8,6 +8,7 @@ module.exports = gql`
 		token: String
 		imageUrn: String
 		imageUrl: String
+		threads: [Thread]
 		latestMessage: Message
 	}
 	type Message {
@@ -60,11 +61,20 @@ module.exports = gql`
 		message: Message!
 		user: User!
 	}
+	type Thread {
+		id: String!
+		users: [User]!
+		user: User!
+		latestMessage: Message
+		createdAt: String!
+		updatedAt: String!
+	}
 	type Query {
 		getUsers: [User]!
 		login(username: String!, password: String!): User!
 		getMessages(from: String!): [Message]!
 		getNotifications: [Notification]!
+		getThreads: [Thread]!
 	}
 	type Mutation {
 		register(
