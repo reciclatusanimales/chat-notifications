@@ -7,10 +7,20 @@ module.exports = (sequelize, DataTypes) => {
 		 * This method is not a part of Sequelize lifecycle.
 		 * The `models/index` file will call this method automatically.
 		 */
-		static associate({ Reaction }) {
+		static associate({ Reaction, Thread, User }) {
 			this.hasMany(Reaction, {
 				foreignKey: "messageId",
 				as: "reactions",
+			});
+			this.belongsTo(Thread, {
+				foreignKey: "threadId",
+				as: "thread",
+				targetKey: "id",
+			});
+			this.belongsTo(User, {
+				foreignKey: "from",
+				targetKey: "username",
+				as: "user",
 			});
 		}
 	}
@@ -29,8 +39,8 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
-			to: {
-				type: DataTypes.STRING,
+			threadId: {
+				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
 		},

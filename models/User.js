@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 			this.belongsToMany(Thread, {
 				through: "ThreadUser",
 				as: "threads",
-				foreignKey: "userId",
+				foreignKey: "username",
 			});
 			this.hasMany(Notification, {
 				foreignKey: "username",
@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
 			username: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				primaryKey: true,
 				unique: true,
 			},
 			email: {

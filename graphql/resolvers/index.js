@@ -16,6 +16,7 @@ const {
 module.exports = {
 	Message: {
 		createdAt: (parent) => parent.createdAt.toISOString(),
+		thread: async (parent) => await Thread.findByPk(parent.messageId),
 	},
 	Notification: {
 		createdAt: (parent) => parent.createdAt.toISOString(),

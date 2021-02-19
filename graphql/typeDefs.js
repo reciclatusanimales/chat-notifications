@@ -15,7 +15,11 @@ module.exports = gql`
 		uuid: String!
 		content: String!
 		from: String!
-		to: String!
+		to: String
+		user: User!
+		threadId: String!
+		thread: Thread!
+		users: [User]
 		createdAt: String!
 		reactions: [Reaction]
 	}
@@ -64,15 +68,15 @@ module.exports = gql`
 	type Thread {
 		id: String!
 		users: [User]!
-		user: User!
-		latestMessage: Message
+		user: User
+		lastMessage: String
 		createdAt: String!
 		updatedAt: String!
 	}
 	type Query {
 		getUsers: [User]!
 		login(username: String!, password: String!): User!
-		getMessages(from: String!): [Message]!
+		getMessages(threadId: Int!): [Message]!
 		getNotifications: [Notification]!
 		getThreads: [Thread]!
 	}
@@ -83,7 +87,7 @@ module.exports = gql`
 			password: String!
 			confirmPassword: String!
 		): User!
-		sendMessage(to: String!, content: String!): Message!
+		sendMessage(threadId: Int!, content: String!): Message!
 		reactToMessage(uuid: String!, content: String!): Reaction!
 		createNotification(
 			username: String!

@@ -1,7 +1,7 @@
 const { Op, ValidationError } = require("sequelize");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 
-const { User, Thread, Message } = require("../../models");
+const { User, Thread, Message, sequelize } = require("../../models");
 const { capitalize } = require("../../utils/utils");
 
 module.exports = {
@@ -17,6 +17,20 @@ module.exports = {
 						{
 							model: Thread,
 							as: "threads",
+							attributes: {
+								include: [
+									[
+										sequelize.literal(`(
+											SELECT message."content"
+											FROM messages AS message											
+											WHERE message."threadId"=threads.id
+											ORDER BY message."createdAt" DESC
+											LIMIT 1
+										)`),
+										"lastMessage",
+									],
+								],
+							},
 							include: [
 								{
 									model: User,
@@ -27,32 +41,21 @@ module.exports = {
 					],
 				});
 
-				const allUserMessages = await Message.findAll({
-					where: {
-						[Op.or]: [
-							{ from: user.username },
-							{ to: user.username },
-						],
-					},
-					order: [["createdAt", "DESC"]],
-				});
-
-				userThreads.threads = userThreads.threads.map((thread) => {
-					const otherUser = thread.users.find(
+				const threads = userThreads.threads.map((t) => {
+					const otherUser = t.users.find(
 						(u) => u.username !== user.username
 					);
-					thread.user = otherUser;
-
-					const latestMessage = allUserMessages.find(
-						(m) =>
-							m.from === otherUser.username ||
-							m.to === otherUser.username
-					);
-					thread.latestMessage = latestMessage;
-					return thread;
+					const formatedThread = {
+						id: t.id,
+						createdAt: t.createdAt,
+						updatedAt: t.updatedAt,
+						user: otherUser,
+						lastMessage: t.dataValues.lastMessage,
+					};
+					return formatedThread;
 				});
 
-				return userThreads.threads;
+				return threads;
 			} catch (error) {
 				throw error;
 			}

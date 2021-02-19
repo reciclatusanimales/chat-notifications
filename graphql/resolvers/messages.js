@@ -5,29 +5,23 @@ const {
 	withFilter,
 } = require("apollo-server");
 const { Op } = require("sequelize");
-const { Message, User, Reaction } = require("../../models");
+const { Thread, Message, User, Reaction, sequelize } = require("../../models");
 
 module.exports = {
 	Query: {
-		getMessages: async (parent, { from }, { user }) => {
+		getMessages: async (parent, { threadId }, { user }) => {
 			try {
 				if (!user) throw new AuthenticationError("Unauthenticated.");
 
-				const otherUser = await User.findOne({
-					where: { username: from },
-				});
-
-				if (!otherUser) throw new UserInputError("User not found.");
-
-				const usernames = [user.username, otherUser.username];
-
 				const messages = await Message.findAll({
 					where: {
-						from: { [Op.in]: usernames },
-						to: { [Op.in]: usernames },
+						threadId,
 					},
-					order: [["createdAt", "ASC"]],
-					include: [{ model: Reaction, as: "reactions" }],
+					order: [["createdAt", "DESC"]],
+					include: [
+						{ model: Reaction, as: "reactions" },
+						{ model: User, as: "user" },
+					],
 				});
 
 				return messages;
@@ -38,32 +32,75 @@ module.exports = {
 		},
 	},
 	Mutation: {
-		sendMessage: async (parent, { to, content }, { user, pubsub }) => {
+		sendMessage: async (
+			parent,
+			{ threadId, content },
+			{ user, pubsub }
+		) => {
 			try {
-				console.log(user);
 				if (!user) throw new AuthenticationError("Unauthenticated.");
 
-				const recipient = await User.findOne({
-					where: { username: to },
-				});
-
-				if (!recipient) throw new UserInputError("User not found.");
-
 				if (content.trim() === "")
-					throw new UserInputError("Message is empty");
-				else if (recipient.username === user.username)
-					throw new UserInputError("Can't message yourself.");
+					throw new UserInputError("El mensaje no puede estar vacío");
 
 				const message = await Message.create({
 					from: user.username,
-					to,
 					content,
+					threadId,
 				});
 
-				// Trigger the subscription
-				pubsub.publish("NEW_MESSAGE", { newMessage: message });
+				const m = await Message.findOne({
+					where: { id: message.id },
+					attributes: {
+						include: [
+							[
+								sequelize.literal(`(
+									SELECT "username"
+									FROM threads_users											
+									WHERE "username" <> '${user.username}'
+									AND "threadId"=${message.threadId}
+									LIMIT 1
+								)`),
+								"to",
+							],
+						],
+					},
+					include: [
+						{
+							model: User,
+							as: "user",
+						},
+						{ model: Reaction, as: "reactions" },
+						{
+							model: Thread,
+							as: "thread",
+							include: [
+								{
+									model: User,
+									as: "users",
+								},
+							],
+						},
+					],
+				});
 
-				return message;
+				const formatedMessage = {
+					uuid: m.uuid,
+					content: m.content,
+					from: m.from,
+					to: m.dataValues.to,
+					threadId: m.threadId,
+					user: m.user,
+					thread: m.thread,
+					users: m.thread.dataValues.users,
+					createdAt: m.createdAt,
+					reactions: m.reactions,
+				};
+				console.log(formatedMessage);
+				// Trigger the subscription
+				pubsub.publish("NEW_MESSAGE", { newMessage: formatedMessage });
+
+				return m;
 			} catch (error) {
 				throw error;
 			}
@@ -123,8 +160,7 @@ module.exports = {
 						throw new AuthenticationError("Unauthenticated.");
 					return pubsub.asyncIterator("NEW_MESSAGE");
 				},
-				({ newMessage }, __, { user }) => {
-					// Check if the username is the subscriptor
+				async ({ newMessage }, __, { user }) => {
 					return (
 						newMessage.from === user.username ||
 						newMessage.to === user.username
@@ -142,10 +178,7 @@ module.exports = {
 				async ({ newReaction }, __, { user }) => {
 					// Check if the username is the subscriptor
 					const message = await newReaction.getMessage();
-					return (
-						message.from === user.username ||
-						message.to === user.username
-					);
+					return message.from === user.username;
 				}
 			),
 		},

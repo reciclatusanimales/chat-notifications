@@ -1,18 +1,27 @@
 "use strict";
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable("threads_users", {
+		await queryInterface.createTable("messages", {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER,
 			},
-			threadId: {
-				type: Sequelize.INTEGER,
+			content: {
+				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			userId: {
+			uuid: {
+				type: Sequelize.UUID,
+				defaultValue: Sequelize.UUIDV4,
+				allowNull: false,
+			},
+			from: {
+				type: Sequelize.STRING,
+				allowNull: false,
+			},
+			threadId: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 			},
@@ -27,6 +36,6 @@ module.exports = {
 		});
 	},
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable("threads_users");
+		await queryInterface.dropTable("messages");
 	},
 };
