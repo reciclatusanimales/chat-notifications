@@ -18,7 +18,8 @@ module.exports = gql`
 		to: String
 		user: User!
 		threadId: String!
-		thread: Thread!
+		thread: Thread
+		threadd: Thread
 		users: [User]
 		createdAt: String!
 		reactions: [Reaction]
@@ -70,6 +71,7 @@ module.exports = gql`
 		users: [User]!
 		user: User
 		lastMessage: String
+		unread: Int!
 		createdAt: String!
 		updatedAt: String!
 	}
@@ -87,7 +89,7 @@ module.exports = gql`
 			password: String!
 			confirmPassword: String!
 		): User!
-		sendMessage(threadId: Int!, content: String!): Message!
+		sendMessage(threadId: Int, username: String, content: String!): Message!
 		reactToMessage(uuid: String!, content: String!): Reaction!
 		createNotification(
 			username: String!

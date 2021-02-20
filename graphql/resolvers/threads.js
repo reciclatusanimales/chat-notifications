@@ -7,7 +7,6 @@ const { capitalize } = require("../../utils/utils");
 module.exports = {
 	Query: {
 		getThreads: async (_, __, { user }) => {
-			console.log("GET THREADS");
 			try {
 				if (!user) throw new AuthenticationError("Unauthenticated");
 
@@ -29,6 +28,16 @@ module.exports = {
 										)`),
 										"lastMessage",
 									],
+									[
+										sequelize.literal(`(
+											SELECT COUNT(*)
+											FROM messages AS message											
+											WHERE message."threadId"=threads.id
+											AND message."from" <> '${user.username}'
+											AND message."read"='false'
+										)`),
+										"unread",
+									],
 								],
 							},
 							include: [
@@ -39,6 +48,7 @@ module.exports = {
 							],
 						},
 					],
+					order: [["threads", "updatedAt", "DESC"]],
 				});
 
 				const threads = userThreads.threads.map((t) => {
@@ -51,6 +61,7 @@ module.exports = {
 						updatedAt: t.updatedAt,
 						user: otherUser,
 						lastMessage: t.dataValues.lastMessage,
+						unread: t.dataValues.unread,
 					};
 					return formatedThread;
 				});

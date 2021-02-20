@@ -24,6 +24,17 @@ module.exports = {
 					],
 				});
 
+				await Message.update(
+					{
+						read: true,
+					},
+					{
+						where: {
+							threadId,
+						},
+					}
+				);
+
 				return messages;
 			} catch (error) {
 				console.error(error);
@@ -34,14 +45,40 @@ module.exports = {
 	Mutation: {
 		sendMessage: async (
 			parent,
-			{ threadId, content },
+			{ threadId, username, content },
 			{ user, pubsub }
 		) => {
 			try {
 				if (!user) throw new AuthenticationError("Unauthenticated.");
 
 				if (content.trim() === "")
-					throw new UserInputError("El mensaje no puede estar vacío");
+					throw new UserInputError(
+						"El mensaje no puede estar vacío."
+					);
+
+				if (!threadId) {
+					const recipient = await User.findOne({
+						where: { username },
+					});
+
+					if (!recipient)
+						throw new UserInputError("Destinatario no encontrado.");
+
+					const sender = await User.findOne({
+						where: { username: user.username },
+					});
+
+					const thread = await Thread.create();
+
+					await thread.addUser(recipient);
+					await thread.addUser(sender);
+
+					threadId = thread.id;
+				} else {
+					const thread = await Thread.findByPk(threadId);
+					thread.changed("updatedAt", true);
+					thread.save();
+				}
 
 				const message = await Message.create({
 					from: user.username,
@@ -92,11 +129,12 @@ module.exports = {
 					threadId: m.threadId,
 					user: m.user,
 					thread: m.thread,
+					threadd: m.thread,
 					users: m.thread.dataValues.users,
 					createdAt: m.createdAt,
 					reactions: m.reactions,
 				};
-				console.log(formatedMessage);
+
 				// Trigger the subscription
 				pubsub.publish("NEW_MESSAGE", { newMessage: formatedMessage });
 
@@ -161,6 +199,7 @@ module.exports = {
 					return pubsub.asyncIterator("NEW_MESSAGE");
 				},
 				async ({ newMessage }, __, { user }) => {
+					console.log(newMessage);
 					return (
 						newMessage.from === user.username ||
 						newMessage.to === user.username
