@@ -5,20 +5,15 @@ const {
 	withFilter,
 } = require("apollo-server");
 const { Op } = require("sequelize");
-const { Message, User, Reaction, Notification } = require("../../models");
-
-function makeId(length) {
-	let result = "";
-	const characters =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	const charactersLength = characters.length;
-	for (let i = 0; i < length; i++) {
-		result += characters.charAt(
-			Math.floor(Math.random() * charactersLength)
-		);
-	}
-	return result;
-}
+const {
+	Message,
+	User,
+	Sub,
+	Post,
+	Comment,
+	Reaction,
+	Notification,
+} = require("../../models");
 
 module.exports = {
 	Query: {
@@ -43,24 +38,25 @@ module.exports = {
 	Mutation: {
 		createNotification: async (
 			parent,
-			{ username, sendername, type },
+			{ username, type, value, sendername, subName, postId, commentId },
 			{ user, pubsub }
 		) => {
 			try {
-				if (type === "follow") {
-					const notification = await Notification.create({
-						identifier: makeId(8),
-						type,
-						sendername,
-						username,
-					});
+				const notification = await Notification.create({
+					username,
+					type,
+					value,
+					sendername,
+					subName,
+					postId,
+					commentId,
+				});
 
-					pubsub.publish("NEW_NOTIFICATION", {
-						newNotification: notification,
-					});
+				pubsub.publish("NEW_NOTIFICATION", {
+					newNotification: notification,
+				});
 
-					return notification;
-				}
+				return notification;
 			} catch (error) {
 				throw error;
 			}

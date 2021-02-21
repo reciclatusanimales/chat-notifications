@@ -51,14 +51,15 @@ module.exports = {
 			await Post.findByPk(parent.postId, {
 				attributes: [
 					"identifier",
-					"slug",
 					"title",
+					"subName",
+					"slug",
 					"username",
 					"createdAt",
 				],
 			}),
 		comment: async (parent) =>
-			await Comment.findByPk(parent.postId, {
+			await Comment.findByPk(parent.commentId, {
 				attributes: ["identifier", "body", "username", "createdAt"],
 			}),
 	},

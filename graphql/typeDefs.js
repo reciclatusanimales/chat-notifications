@@ -51,6 +51,7 @@ module.exports = gql`
 	type Notification {
 		identifier: String!
 		type: String!
+		value: String
 		read: String!
 		user: User!
 		sender: User
@@ -93,8 +94,12 @@ module.exports = gql`
 		reactToMessage(uuid: String!, content: String!): Reaction!
 		createNotification(
 			username: String!
-			sendername: String!
 			type: String!
+			value: String
+			sendername: String
+			subName: String
+			postId: Int
+			commentId: Int
 		): Notification!
 	}
 	type Subscription {

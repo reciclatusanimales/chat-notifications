@@ -2,7 +2,7 @@ const { Op, ValidationError } = require("sequelize");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 
 const { User, Thread, Message, sequelize } = require("../../models");
-const { capitalize } = require("../../utils/utils");
+const { capitalize } = require("../../utils");
 
 module.exports = {
 	Query: {

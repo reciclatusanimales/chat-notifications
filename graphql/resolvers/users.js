@@ -4,12 +4,11 @@ const { Op, ValidationError } = require("sequelize");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 
 const { User, Message } = require("../../models");
-const { capitalize } = require("../../utils/utils");
+const { capitalize } = require("../../utils");
 
 module.exports = {
 	Query: {
 		getUsers: async (_, __, { user }) => {
-			console.log("GET USERS");
 			try {
 				if (!user) throw new AuthenticationError("Unauthenticated");
 
