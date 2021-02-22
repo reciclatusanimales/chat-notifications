@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			sendername: {
 				type: DataTypes.STRING,
-				allowNull: false,
+				allowNull: true,
 			},
 			subName: {
 				type: DataTypes.STRING,
