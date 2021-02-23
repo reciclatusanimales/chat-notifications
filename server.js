@@ -1,12 +1,4 @@
-const http = require("http");
-const express = require("express");
-const PORT = 4000;
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const { ApolloServer } = require("apollo-server-express");
-
-const bodyParser = require("body-parser");
-const jsonParser = bodyParser.json();
+const { ApolloServer } = require("apollo-server");
 
 require("dotenv").config();
 
@@ -21,27 +13,13 @@ const server = new ApolloServer({
 	resolvers,
 	context: contextMiddleware,
 	subscriptions: {
-		path: "/graphql",
+		path: "/",
 	},
 });
 
-const app = express();
-app.use(cors());
-app.use(jsonParser);
-
-const { create } = require("./routes/notifications");
-
-app.get("/api", (_, response) => response.send("Hello friend..."));
-
-app.get("/api/notification/create", create);
-
-server.applyMiddleware({ app });
-const httpServer = http.createServer(app);
-server.installSubscriptionHandlers(httpServer);
-
-httpServer.listen(PORT, () => {
-	console.log(`🚀 Server ready at http://localhost:${PORT}`);
-	console.log(`🚀 Subscriptions ready at http://localhost:${PORT}`);
+server.listen().then(({ url, subscriptionsUrl }) => {
+	console.log(`🚀 Server ready at ${url}`);
+	console.log(`🚀 Subscriptions ready at ${subscriptionsUrl}`);
 
 	sequelize
 		.authenticate()
