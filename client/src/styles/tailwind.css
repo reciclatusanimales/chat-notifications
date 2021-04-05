@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	.button {
+		@apply inline-block w-20 py-1 font-bold leading-3 text-center uppercase border rounded cursor-pointer sm:w-32 sm:leading-5 text-xxs sm:text-xs text-primary-1;
+	}
+
+	.button.primary {
+		@apply text-white bg-primary-1 border-primary-1 hover:bg-primary-2 hover:border-primary-2 disabled:bg-primary-2 disabled:border-primary-2;
+	}
+
+	.button.reject {
+		@apply text-white bg-primary-4 border-primary-4 hover:bg-primary-2 hover:border-primary-2 disabled:bg-primary-2 disabled:border-primary-2;
+	}
+
+	.button.reject.hollow {
+		@apply bg-transparent text-primary-4 border-primary-4 hover:bg-primary-5 hover:border-primary-5;
+	}
+
+	.button.primary:hover {
+		@apply bg-primary-2 border-primary-2;
+	}
+
+	.button.primary.hollow {
+		@apply bg-transparent text-primary-1 border-primary-1 hover:bg-primary-5 hover:border-primary-5;
+	}
+
+	.button.dark {
+		@apply text-white bg-dark-3 border-dark-3 hover:bg-dark-4 hover:border-dark-4 disabled:bg-dark-4 disabled:border-dark-4;
+	}
+
+	.button.dark:hover {
+		@apply bg-dark-4 border-dark-4;
+	}
+
+	.button.dark.hollow {
+		@apply bg-transparent text-dark-3 border-dark-3;
+	}
+}

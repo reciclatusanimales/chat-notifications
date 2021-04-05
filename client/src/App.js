@@ -1,8 +1,8 @@
 import React from "react";
-import "./App.scss";
 import { BrowserRouter, Switch } from "react-router-dom";
+import jwt from "jwt-decode";
 
-import { Container } from "react-bootstrap";
+import "./styles/app.css";
 import ApolloProvider from "./ApolloProvider";
 
 // Pages
@@ -10,39 +10,51 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import Register from "./pages/register";
 
-import { AuthProvider } from "./context/auth";
-import { MessageProvider } from "./context/message";
 import DynamicRoute from "./utils/DynamicRoute";
 
+import { useDispatch } from "react-redux";
+import { login } from "./features/user/userSlice";
+
+let user = null;
+const token = localStorage.getItem("token");
+
+if (token) {
+	const decodedToken = jwt(token);
+	const expiresAt = new Date(decodedToken.exp * 1000);
+
+	if (new Date() > expiresAt) {
+		localStorage.removeItem("token");
+	} else {
+		user = { ...decodedToken, token };
+	}
+} else {
+	console.log("NO TOKEN");
+}
+
 function App() {
+	const dispatch = useDispatch();
+	if (user) dispatch(login(user));
+
 	return (
 		<ApolloProvider>
-			<AuthProvider>
-				<MessageProvider>
-					<BrowserRouter>
-						<Container className="pt-5">
-							<Switch>
-								<DynamicRoute
-									exact
-									path="/"
-									component={Home}
-									authenticated
-								/>
-								<DynamicRoute
-									path="/register"
-									component={Register}
-									guest
-								/>
-								<DynamicRoute
-									path="/login"
-									component={Login}
-									guest
-								/>
-							</Switch>
-						</Container>
-					</BrowserRouter>
-				</MessageProvider>
-			</AuthProvider>
+			<BrowserRouter>
+				<div className="pt-12 h-full">
+					<Switch>
+						<DynamicRoute
+							exact
+							path="/"
+							component={Home}
+							authenticated
+						/>
+						<DynamicRoute
+							path="/register"
+							component={Register}
+							guest
+						/>
+						<DynamicRoute path="/login" component={Login} guest />
+					</Switch>
+				</div>
+			</BrowserRouter>
 		</ApolloProvider>
 	);
 }

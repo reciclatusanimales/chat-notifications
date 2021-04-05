@@ -1,48 +1,59 @@
 {
-  "name": "client",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@apollo/client": "^3.3.7",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "bootstrap": "^4.5.3",
-    "classnames": "^2.2.6",
-    "graphql": "^15.4.0",
-    "jwt-decode": "^3.1.2",
-    "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
-    "react": "^17.0.1",
-    "react-bootstrap": "^1.4.3",
-    "react-dom": "^17.0.1",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.1",
-    "subscriptions-transport-ws": "^0.9.18",
-    "web-vitals": "^0.2.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+	"name": "client",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@apollo/client": "^3.3.7",
+		"@reduxjs/toolkit": "^1.5.1",
+		"@testing-library/jest-dom": "^5.11.4",
+		"@testing-library/react": "^11.1.0",
+		"@testing-library/user-event": "^12.1.10",
+		"bootstrap": "^4.5.3",
+		"classnames": "^2.3.1",
+		"dotenv": "^8.2.0",
+		"graphql": "^15.4.0",
+		"jwt-decode": "^3.1.2",
+		"moment": "^2.29.1",
+		"node-sass": "^4.14.1",
+		"postcss": "^8.2.9",
+		"react": "^17.0.1",
+		"react-bootstrap": "^1.4.3",
+		"react-dom": "^17.0.1",
+		"react-redux": "^7.2.3",
+		"react-router-dom": "^5.2.0",
+		"react-scripts": "4.0.1",
+		"subscriptions-transport-ws": "^0.9.18",
+		"web-vitals": "^0.2.4"
+	},
+	"scripts": {
+		"start": "react-scripts start && npm run watch:css",
+		"build": "npm run build:css && react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
+		"build:css": "postcss src/styles/tailwind.css -o src/styles/app.css",
+		"watch:css": "postcss src/styles/tailwind.css -o src/styles/app.css -w"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"autoprefixer": "^10.2.5",
+		"postcss-cli": "^8.3.1",
+		"tailwindcss": "^2.0.4"
+	}
 }

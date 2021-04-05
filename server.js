@@ -29,11 +29,7 @@ const app = express();
 app.use(cors());
 app.use(jsonParser);
 
-const { create } = require("./routes/notifications");
-
 app.get("/api", (_, response) => response.send("Hello friend..."));
-
-app.get("/api/notification/create", create);
 
 server.applyMiddleware({ app });
 const httpServer = http.createServer(app);

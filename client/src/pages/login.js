@@ -1,112 +1,94 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { gql, useLazyQuery } from "@apollo/client";
+import { useDispatch } from "react-redux";
 
-import { Row, Col, Form, Button } from "react-bootstrap";
-
-import { useAuthDispatch } from "../context/auth";
+import InputGroup from "../components/InputGroup";
+import { login } from "../features/user/userSlice";
 
 const LOGIN_USER = gql`
 	query login($username: String!, $password: String!) {
 		login(username: $username, password: $password) {
 			username
 			email
+			imageUrl
 			createdAt
 			token
 		}
 	}
 `;
 
-const initialUserState = {
-	username: "",
-	password: "",
-};
-
-export default function Login(props) {
-	const [userData, setUserData] = useState(initialUserState);
+export default function Login({ history }) {
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 	const [errors, setErrors] = useState({});
 
-	const dispatch = useAuthDispatch();
+	const dispatch = useDispatch();
 
 	const [loginUser, { loading }] = useLazyQuery(LOGIN_USER, {
 		onError: (error) => setErrors(error.graphQLErrors[0].extensions.errors),
 		onCompleted(data) {
-			dispatch({ type: "LOGIN", payload: data.login });
-			window.location.href = "/";
+			dispatch(login(data.login));
+			history.push("/");
 		},
 	});
-
-	const handleChange = (event) => {
-		setUserData({
-			...userData,
-			[event.target.name]: event.target.value,
-		});
-	};
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		loginUser({ variables: userData });
+		loginUser({ variables: { username, password } });
 	};
 
 	return (
-		<Row className="bg-white py-5 justify-content-center">
-			<Col sm={8} md={6} lg={4}>
-				<h1 className="text-center">Login</h1>
+		<div className="flex bg-primary-5">
+			<div
+				className="w-1/3 h-screen bg-right bg-cover"
+				style={{ backgroundImage: "url('/images/clics.jpg')" }}
+			></div>
 
-				<Form onSubmit={handleSubmit} noValidate>
-					<Form.Group>
-						<Form.Label
-							className={errors.username && "text-danger"}
-						>
-							{errors.username ?? "Username"}
-						</Form.Label>
-						<Form.Control
+			<div className="flex flex-col justify-center pl-6 pr-2">
+				<div className="xs:w-50 sm:w-70">
+					<h1 className="mb-2 text-lg font-medium">Entrar</h1>
+
+					<form onSubmit={handleSubmit} noValidate>
+						<InputGroup
+							className="mb-2"
 							type="text"
-							name="username"
-							className={errors.username && "is-invalid"}
-							value={userData.username}
-							onChange={handleChange}
+							value={username}
+							setValue={setUsername}
+							placeholder="Nombre de usuario"
+							error={errors.username}
 						/>
-					</Form.Group>
 
-					<Form.Group>
-						<Form.Label
-							className={errors.password && "text-danger"}
-						>
-							{errors.password ?? "Password"}
-						</Form.Label>
-						<Form.Control
+						<InputGroup
+							className="mb-4"
 							type="password"
-							name="password"
-							className={errors.password && "is-invalid"}
-							value={userData.password}
-							onChange={handleChange}
+							value={password}
+							setValue={setPassword}
+							placeholder="Contraseña"
+							error={errors.password}
 						/>
-					</Form.Group>
 
-					<div className="text-center">
-						<span className="text-danger">{errors.general}</span>
-
-						<br />
-
-						<Button
-							variant="success"
-							type="submit"
-							disabled={loading}
-						>
-							{loading ? "loading..." : "Login"}
-						</Button>
-
-						<br />
-
-						<small>
-							Don't have an account?{" "}
-							<Link to="/register">Register</Link>
+						<small className="font-medium text-primary-4">
+							{errors.general}
 						</small>
-					</div>
-				</Form>
-			</Col>
-		</Row>
+
+						<button className="w-full py-2 mb-4 text-xs font-bold text-white uppercase border rounded border-primary-1 bg-primary-1">
+							Entrar
+						</button>
+					</form>
+
+					<small>
+						¿Eres nuevo en Clics?
+						<Link
+							to="/register"
+							className="ml-1 font-bold uppercase text-primary-1"
+						>
+							Regístrate
+						</Link>
+					</small>
+				</div>
+			</div>
+		</div>
 	);
 }

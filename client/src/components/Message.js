@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import classNames from "classnames";
-import moment from "moment";
-import { useAuthState } from "../context/auth";
-import { OverlayTrigger, Tooltip, Button, Popover } from "react-bootstrap";
 
+import { useSelector } from "react-redux";
 import { gql, useMutation } from "@apollo/client";
 
 const reactions = ["❤️", "😆", "😯", "😢", "😡", "👍", "👎"];
@@ -17,16 +14,15 @@ const REACT_TO_MESSAGE = gql`
 `;
 
 export default function Message({ message }) {
-	const { user } = useAuthState();
+	const user = useSelector((state) => state.user.user);
 	const sent = message.from === user.username;
 	const received = !sent;
 	const [showPopover, setShowPopover] = useState(false);
-	const reactionIcons = [...new Set(message.reactions.map((r) => r.content))];
+	//const reactionIcons = [...new Set(message.reactions.map((r) => r.content))];
 
 	const [reactToMessage] = useMutation(REACT_TO_MESSAGE, {
 		onCompleted: (data) => {
 			setShowPopover(false);
-			console.log("REACT");
 		},
 		onError: (error) => console.error(error),
 	});
@@ -37,79 +33,37 @@ export default function Message({ message }) {
 		});
 	};
 
-	const reactionButton = (
-		<OverlayTrigger
-			trigger="click"
-			placement="top"
-			show={showPopover}
-			onToggle={setShowPopover}
-			transition={false}
-			rootClose
-			overlay={
-				<Popover className="rounded-pill">
-					<Popover.Content className="d-flex px-0 py-1 align-items-center reaction-button-popover">
-						{reactions.map((reaction) => (
-							<Button
-								key={reaction}
-								variant="link"
-								className="reaction-icon-button"
-								onClick={() => handleReact(reaction)}
-							>
-								{reaction}
-							</Button>
-						))}
-					</Popover.Content>
-				</Popover>
-			}
-		>
-			<Button variant="link" className="px-2">
-				<i className="far fa-smile"></i>
-			</Button>
-		</OverlayTrigger>
-	);
+	const reactionButton = null;
 
-	return (
-		<div
-			className={classNames("d-flex my-3", {
-				"ml-auto": sent,
-				"mr-auto": received,
-			})}
-		>
-			{sent && reactionButton}
-			<OverlayTrigger
-				placement="top"
-				overlay={
-					<Tooltip>
-						{moment(message.createdAt).format(
-							"MMMM DD, YYYY @ h:mm a"
-						)}
-					</Tooltip>
-				}
-				transition={false}
-			>
-				<div
-					className={classNames(
-						"py-2 px-3 rounded-pill position-relative ",
-						{
-							"bg-primary": sent,
-							"bg-secondary": received,
-						}
-					)}
-				>
-					{message.reactions.length > 0 && (
-						<div className="reactions-div bg-secondary p-1 rounded-pill">
-							{reactionIcons} {message.reactions.length}
-						</div>
-					)}
-					<p
-						className={classNames({ "text-white": sent })}
-						key={message.uuid}
-					>
-						{message.content}
-					</p>
+	return sent ? (
+		<div className="col-start-1 col-end-8 p-3 rounded-lg">
+			<div className="flex flex-row items-center">
+				<img
+					src={message.user.imageUrl}
+					className="rounded-full"
+					alt="User"
+					height={(8 * 16) / 4}
+					width={(8 * 16) / 4}
+				/>
+				<div className="relative px-4 py-2 ml-3 text-sm bg-white shadow rounded-xl">
+					<div>{message.content}</div>
 				</div>
-			</OverlayTrigger>
-			{received && reactionButton}
+			</div>
+		</div>
+	) : (
+		<div className="col-start-6 col-end-13 p-3 rounded-lg">
+			<div className="flex flex-row-reverse items-center justify-start">
+				<img
+					src={message.user.imageUrl}
+					className="rounded-full"
+					alt="User"
+					height={(8 * 16) / 4}
+					width={(8 * 16) / 4}
+				/>
+				<div className="relative px-4 py-2 mr-3 text-sm bg-indigo-100 shadow rounded-xl">
+					<div>{message.content}</div>
+				</div>
+			</div>
 		</div>
 	);
 }

@@ -83,9 +83,11 @@ module.exports = {
 				const token = jwt.sign(
 					{
 						username,
+						email: user.email,
+						createdAt: user.createdAt,
+						imageUrl: user.imageUrl,
 					},
-					process.env.JWT_SECRET,
-					{ expiresIn: 60 * 60 }
+					process.env.JWT_SECRET
 				);
 
 				return {
