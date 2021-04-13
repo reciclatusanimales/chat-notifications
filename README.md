@@ -28,7 +28,7 @@ $ cd chat-notifications
 $ npm install
 
 # Go into the client folder
-$ cd ../client
+$ cd client
 
 # Install client dependencies
 $ npm install
