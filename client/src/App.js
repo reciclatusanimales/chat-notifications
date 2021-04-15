@@ -38,7 +38,7 @@ function App() {
 	return (
 		<ApolloProvider>
 			<BrowserRouter>
-				<div className="pt-12 h-full">
+				<div className="h-full">
 					<Switch>
 						<DynamicRoute
 							exact

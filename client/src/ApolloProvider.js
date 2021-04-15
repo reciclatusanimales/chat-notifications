@@ -13,9 +13,7 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 
 import { setContext } from "@apollo/client/link/context";
 
-const uri =
-	process.env.REACT_APP_SERVER_URI ||
-	"https://www.chat.reciclatusanimales.com/graphql/";
+const uri = process.env.REACT_APP_SERVER_URI || "/graphql/";
 const wssUri =
 	process.env.REACT_APP_SERVER_WS_URI ||
 	"wss://www.chat.reciclatusanimales.com/graphql/";

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Threads from "../components/Threads";
 import Messages from "../components/Messages";
 import { addMessage } from "../features/chat/chatSlice";
+import Navbar from "../components/Navbar";
 
 const NEW_MESSAGE = gql`
 	subscription newMessage {
@@ -89,7 +90,8 @@ export default function Home() {
 	// }, [reactionData, reactionError]);
 
 	return (
-		<div className="container h-full">
+		<div className="container h-full pt-12">
+			<Navbar />
 			<div className="flex h-full py-4">
 				<div className="flex w-full antialiased text-gray-800">
 					<div className="flex flex-row w-full overflow-x-hidden">
